@@ -1,10 +1,12 @@
 # Signal Desk
 
-Signal Desk is a small showcase of a React request lifecycle: React dispatches an action, Redux stores the conversation, Redux Saga coordinates the side effect, and a Node/Express API calls a provider adapter.
+Signal Desk is a small showcase of a modern React request lifecycle: React dispatches an action, Redux stores the conversation, Redux Saga coordinates the side effect, and a Node/Express API calls a provider adapter.
+
+The client uses React, TypeScript, and Vite. The server is Express, and the full workflow is designed to run in GitHub Codespaces without local Node.js installation.
 
 ## Run it locally
 
-Install Node.js, then run:
+With Node.js 22 or newer installed, run:
 
 ```bash
 npm install
@@ -17,7 +19,7 @@ The React app runs on `http://localhost:3000` and the API runs on `http://localh
 
 You do not need Node.js installed on your machine. Open the GitHub repository, select **Code**, choose **Codespaces**, and create a codespace. The checked-in `.devcontainer/devcontainer.json` installs dependencies, forwards ports `3000` and `4000`, and starts the app automatically.
 
-Open the forwarded port `3000` preview. The API runs on port `4000` inside the codespace, and the React proxy forwards `/api/chat` to it. You can verify the API from the Ports panel by opening `/api/health` on port `4000`.
+Open the forwarded port `3000` preview. The API runs on port `4000` inside the codespace, and Vite proxies `/api/chat` to it. You can verify the API from the Ports panel by opening `/api/health` on port `4000`.
 
 ## Architecture
 

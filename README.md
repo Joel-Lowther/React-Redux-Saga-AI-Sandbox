@@ -13,11 +13,11 @@ npm run dev
 
 The React app runs on `http://localhost:3000` and the API runs on `http://localhost:4000`.
 
-## Run it in CodeSandbox
+## Run it in GitHub Codespaces
 
-You do not need Node.js installed on your machine. Create a CodeSandbox from this project by importing its GitHub repository, uploading the project folder, or opening it in the CodeSandbox editor. The checked-in `.codesandbox/tasks.json` automatically runs `npm install` and then `npm run dev`, which starts both the React preview and the Express API in CodeSandbox's hosted environment.
+You do not need Node.js installed on your machine. Open the GitHub repository, select **Code**, choose **Codespaces**, and create a codespace. The checked-in `.devcontainer/devcontainer.json` installs dependencies, forwards ports `3000` and `4000`, and starts the app automatically.
 
-Open the generated port `3000` preview. The API stays on port `4000` inside the same sandbox, and the React proxy forwards `/api/chat` to it.
+Open the forwarded port `3000` preview. The API runs on port `4000` inside the codespace, and the React proxy forwards `/api/chat` to it. You can verify the API from the Ports panel by opening `/api/health` on port `4000`.
 
 ## Architecture
 
@@ -26,4 +26,3 @@ Open the generated port `3000` preview. The API stays on port `4000` inside the 
 - `server/index.js` exposes `POST /api/chat` and contains the provider adapter.
 
 The current adapter is deterministic so the workflow works without credentials. The next integration can replace `provider.reply` with an AI SDK call or a Deepgram transcription workflow without changing the UI or Redux contract.
-Created with CodeSandbox

@@ -3,6 +3,8 @@ const app = express();
 const port = process.env.PORT || 4000;
 app.use(express.json());
 
+app.get("/api/health", (_req, res) => res.json({ status: "ok", provider: "mock" }));
+
 const provider = {
   async reply(prompt) {
     return `I received “${prompt}”. This response came through Redux Saga and the Node adapter. Replace this provider with your AI or Deepgram integration when you are ready.`;

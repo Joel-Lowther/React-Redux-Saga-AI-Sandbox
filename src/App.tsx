@@ -2,7 +2,7 @@ import { FormEvent, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./store";
 import { chatActions } from "./chatSlice";
-import "./styles.css";
+import "./styles.scss";
 
 export default function App() {
   const dispatch = useDispatch<AppDispatch>();

@@ -21,10 +21,19 @@ You do not need Node.js installed on your machine. Open the GitHub repository, s
 
 Open the forwarded port `3000` preview. The API runs on port `4000` inside the codespace, and Vite proxies `/api/chat` to it. You can verify the API from the Ports panel by opening `/api/health` on port `4000`.
 
-## Provider status
+## Provider configuration
 
 
-The current adapter is deterministic so the workflow works without credentials. The next integration can replace `provider.reply` with an AI SDK call or a Deepgram transcription workflow without changing the UI or Redux contract.
+The provider adapter uses a deterministic local fallback by default. To use an
+OpenAI-compatible chat endpoint, copy `.env.example` to `.env` and set
+`AI_API_KEY`. The server reads these variables at startup:
+
+- `AI_API_KEY`: API credential; never commit this value.
+- `AI_API_ENDPOINT`: chat completions URL, defaulting to OpenAI.
+- `AI_MODEL`: model name, defaulting to `gpt-4o-mini`.
+
+The `/api/health` response reports `mock` or `openai-compatible` so the active
+provider is visible during development.
 ## Stack
 
 - React 19 and TypeScript for the client UI
@@ -64,6 +73,7 @@ The main ownership boundaries are:
 - `src/chatSlice.ts` owns messages, status, and error state.
 - `src/sagas.ts` owns the API side effect and failure handling.
 - `server/index.js` validates requests and calls the provider adapter.
+- `server/provider.js` selects the configured AI provider or local fallback.
 - `vite.config.ts` proxies `/api` calls to the Express server during development.
 
 ## Request lifecycle
@@ -104,8 +114,8 @@ testing, documentation, and future AI feature work separately.
 
 ## AI feature: conversation summaries
 
-The `feature/conversation-summary` branch adds a **Summarize thread** action.
-It sends the current conversation to `POST /api/chat/summary`, which is an
-AI-ready provider boundary with a deterministic fallback for local development.
-The feature demonstrates a separate Saga flow, loading and error states, and
-API validation without requiring credentials.
+The application includes a **Summarize thread** action. It sends the current
+conversation to `POST /api/chat/summary`, which uses the configured
+OpenAI-compatible provider when credentials are present and a deterministic
+fallback for local development. The feature demonstrates a separate Saga flow,
+loading and error states, and API validation without requiring credentials.

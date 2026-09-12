@@ -1,15 +1,10 @@
 import express from "express";
+import { provider } from "./provider.js";
 const app = express();
 const port = process.env.PORT || 4000;
 app.use(express.json());
 
-app.get("/api/health", (_req, res) => res.json({ status: "ok", provider: "mock" }));
-
-const provider = {
-  async reply(prompt) {
-    return `I received “${prompt}”. This response came through Redux Saga and the Node adapter. Replace this provider with your AI or Deepgram integration when you are ready.`;
-  },
-};
+app.get("/api/health", (_req, res) => res.json({ status: "ok", provider: provider.name }));
 
 app.post("/api/chat", async (req, res) => {
   const prompt = typeof req.body?.prompt === "string" ? req.body.prompt.trim() : "";
@@ -24,8 +19,8 @@ app.post("/api/chat/summary", async (req, res) => {
     (message) => message && (message.role === "user" || message.role === "assistant") && typeof message.content === "string"
   );
   if (!validMessages.length) return res.status(400).json({ error: "At least one message is required." });
-  const topics = validMessages.map((message) => message.content.trim()).filter(Boolean);
-  return res.json({ summary: `This thread contains ${validMessages.length} messages about: ${topics.join(" | ")}.` });
+  try { return res.json({ summary: await provider.summarize(validMessages) }); }
+  catch { return res.status(502).json({ error: "The provider is unavailable." }); }
 });
 
 if (process.env.NODE_ENV !== "test") {

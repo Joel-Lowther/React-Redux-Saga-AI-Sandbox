@@ -17,4 +17,8 @@ app.post("/api/chat", async (req, res) => {
   try { return res.json({ reply: await provider.reply(prompt) }); }
   catch { return res.status(502).json({ error: "The provider is unavailable." }); }
 });
-app.listen(port, () => console.log(`Signal Desk API listening on http://localhost:${port}`));
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => console.log(`Signal Desk API listening on http://localhost:${port}`));
+}
+
+export { app };

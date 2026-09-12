@@ -27,4 +27,20 @@ describe("chat API", () => {
     expect(response.status).toBe(200);
     expect(response.body.reply).toContain("Hello");
   });
+
+  it("summarizes a conversation", async () => {
+    const response = await request(app)
+      .post("/api/chat/summary")
+      .send({ messages: [{ role: "user", content: "Hello" }] });
+
+    expect(response.status).toBe(200);
+    expect(response.body.summary).toContain("1 messages");
+    expect(response.body.summary).toContain("Hello");
+  });
+
+  it("rejects an empty conversation summary request", async () => {
+    const response = await request(app).post("/api/chat/summary").send({ messages: [] });
+
+    expect(response.status).toBe(400);
+  });
 });

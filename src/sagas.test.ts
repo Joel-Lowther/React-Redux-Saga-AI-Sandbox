@@ -1,7 +1,7 @@
 import { call, put } from "redux-saga/effects";
 import { describe, expect, it, vi } from "vitest";
 import { chatActions } from "./chatSlice";
-import { requestReply, sendMessage } from "./sagas";
+import { requestReply, requestSummary, sendMessage, summarizeConversation } from "./sagas";
 
 describe("chat Saga", () => {
   it("requests a reply and dispatches the result", () => {
@@ -38,5 +38,15 @@ describe("chat Saga", () => {
     );
 
     vi.unstubAllGlobals();
+  });
+
+  it("summarizes a conversation and dispatches the result", () => {
+    const messages = [{ id: "1", role: "user" as const, content: "Hello" }];
+    const iterator = summarizeConversation(chatActions.summaryRequested(messages));
+
+    expect(iterator.next().value).toEqual(call(requestSummary, messages));
+    expect(iterator.next({ summary: "A greeting thread" }).value).toEqual(
+      put(chatActions.summaryReceived("A greeting thread"))
+    );
   });
 });

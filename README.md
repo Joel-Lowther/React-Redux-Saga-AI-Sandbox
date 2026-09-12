@@ -92,17 +92,20 @@ npm test
 
 ## Git workflow
 
-For an SVN comparison:
-
-- **Update**: pull or synchronize incoming changes in VS Code Source Control.
-- **Commit**: stage selected files, enter a message, and commit locally.
-- **Push**: use **Sync Changes** to send local commits to GitHub.
+- **Pull**: get incoming changes from GitHub through Source Control.
+- **Stage**: select the files that belong in the checkpoint.
+- **Commit**: save a local checkpoint with a descriptive message.
+- **Push**: use **Sync Changes** to send commits to GitHub.
+- **Branch**: isolate a feature before opening a pull request.
+- **Pull request**: propose merging reviewed work into `main`.
 
 This project uses small commits so the portfolio history shows the build,
 testing, documentation, and future AI feature work separately.
 
-## Planned AI feature
+## AI feature: conversation summaries
 
-The next feature branch will add conversation summarization through the provider
-adapter. It will keep the existing chat flow intact while demonstrating a
-realistic AI integration, error handling, and a focused pull request.
+The `feature/conversation-summary` branch adds a **Summarize thread** action.
+It sends the current conversation to `POST /api/chat/summary`, which is an
+AI-ready provider boundary with a deterministic fallback for local development.
+The feature demonstrates a separate Saga flow, loading and error states, and
+API validation without requiring credentials.

@@ -26,4 +26,13 @@ describe("chat reducer", () => {
 
     expect(state).toMatchObject({ status: "failed", error: "API unavailable" });
   });
+
+  it("stores a generated conversation summary", () => {
+    const state = reducer(
+      reducer(undefined, chatActions.summaryRequested([{ id: "1", role: "user", content: "Hello" }])),
+      chatActions.summaryReceived("A greeting thread")
+    );
+
+    expect(state).toMatchObject({ summary: "A greeting thread", summaryStatus: "succeeded" });
+  });
 });

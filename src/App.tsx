@@ -104,7 +104,7 @@ export default function App() {
           <div className="readout-row"><span>Side effects</span><strong>Redux Saga</strong></div>
           <div className="readout-row"><span>API layer</span><strong>Node + Express</strong></div>
           <div className="readout-row"><span>Provider</span><strong className="provider">{providerName}<i>{providerStatus === "connected" ? "health check passed" : providerStatus}</i></strong></div>
-          <div className="next-feature"><span className="spark">✦</span><div><p className="eyebrow">Next signal</p><p>Swap the mock adapter for streaming AI or Deepgram transcription.</p></div></div>
+          <div className="next-feature"><span className="spark">✦</span><div><p className="eyebrow">Next signal</p><p>Set AI_API_KEY to switch from the local fallback to an OpenAI-compatible provider.</p></div></div>
         </aside>
       </section>
     </main>

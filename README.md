@@ -53,6 +53,12 @@ npm run server # Run only the Express API
 npm start      # Run only the Vite client
 ```
 
+## Continuous integration
+
+GitHub Actions validates every push to `main` and every pull request targeting
+`main`. The workflow installs dependencies with `npm ci`, runs `npm test`, and
+creates a production build with `npm run build`.
+
 ## Architecture
 
 ```mermaid

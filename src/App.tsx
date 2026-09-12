@@ -6,7 +6,7 @@ import "./styles.css";
 
 export default function App() {
   const dispatch = useDispatch<AppDispatch>();
-  const { messages, status, error } = useSelector((state: RootState) => state.chat);
+  const { messages, status, error, summary, summaryStatus, summaryError } = useSelector((state: RootState) => state.chat);
   const [prompt, setPrompt] = useState("");
 
   const submitPrompt = (event: FormEvent) => {
@@ -15,6 +15,11 @@ export default function App() {
     if (!trimmedPrompt || status === "loading") return;
     dispatch(chatActions.messageSent(trimmedPrompt));
     setPrompt("");
+  };
+
+  const summarizeConversation = () => {
+    if (!messages.length || summaryStatus === "loading") return;
+    dispatch(chatActions.summaryRequested(messages));
   };
 
   return (
@@ -47,10 +52,15 @@ export default function App() {
             {status === "loading" && <article className="message assistant loading-message"><span className="message-role">Signal Desk</span><p>Connecting the dots<span className="loading-dots">...</span></p></article>}
           </div>
           {error && <p className="error-message">{error}</p>}
+          {summary && <section className="summary-panel"><p className="eyebrow">AI summary</p><p>{summary}</p></section>}
+          {summaryError && <p className="error-message">{summaryError}</p>}
           <form className="composer" onSubmit={submitPrompt}>
             <input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask about the architecture..." aria-label="Message" />
             <button type="submit" disabled={!prompt.trim() || status === "loading"}>Send <span>↗</span></button>
           </form>
+          <button className="summary-button" type="button" onClick={summarizeConversation} disabled={!messages.length || summaryStatus === "loading"}>
+            {summaryStatus === "loading" ? "Summarizing..." : "Summarize thread"}
+          </button>
         </div>
 
         <aside className="inspector">

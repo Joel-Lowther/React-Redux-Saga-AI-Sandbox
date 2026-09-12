@@ -102,8 +102,10 @@ npm test
 This project uses small commits so the portfolio history shows the build,
 testing, documentation, and future AI feature work separately.
 
-## Planned AI feature
+## AI feature: conversation summaries
 
-The next feature branch will add conversation summarization through the provider
-adapter. It will keep the existing chat flow intact while demonstrating a
-realistic AI integration, error handling, and a focused pull request.
+The `feature/conversation-summary` branch adds a **Summarize thread** action.
+It sends the current conversation to `POST /api/chat/summary`, which is an
+AI-ready provider boundary with a deterministic fallback for local development.
+The feature demonstrates a separate Saga flow, loading and error states, and
+API validation without requiring credentials.

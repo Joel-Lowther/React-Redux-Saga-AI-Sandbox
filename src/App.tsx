@@ -1,4 +1,4 @@
-import { FormEvent, useLayoutEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./store";
 import { chatActions } from "./chatSlice";
@@ -8,7 +8,33 @@ export default function App() {
   const dispatch = useDispatch<AppDispatch>();
   const { messages, status, error, summary, summaryStatus, summaryError } = useSelector((state: RootState) => state.chat);
   const [prompt, setPrompt] = useState("");
+  const [providerStatus, setProviderStatus] = useState<"checking" | "connected" | "offline">("checking");
+  const [providerName, setProviderName] = useState("checking");
   const messagesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch("/api/health")
+      .then((response) => {
+        if (!response.ok) throw new Error("Health check failed");
+        return response.json() as Promise<{ provider: string }>;
+      })
+      .then(({ provider }) => {
+        if (!active) return;
+        setProviderName(provider);
+        setProviderStatus("connected");
+      })
+      .catch(() => {
+        if (!active) return;
+        setProviderName("unavailable");
+        setProviderStatus("offline");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const messageContainer = messagesRef.current;
@@ -38,7 +64,7 @@ export default function App() {
           <p className="eyebrow">AI orchestration lab</p>
           <h1>Signal Desk</h1>
         </div>
-        <div className="stack-status"><span /> API connected</div>
+        <div className={`stack-status ${providerStatus}`}><span /> {providerStatus === "checking" ? "Checking API" : providerStatus === "connected" ? "API connected" : "API offline"}</div>
       </header>
 
       <section className="hero">
@@ -77,7 +103,7 @@ export default function App() {
           <div className="readout-row"><span>State manager</span><strong>Redux Toolkit</strong></div>
           <div className="readout-row"><span>Side effects</span><strong>Redux Saga</strong></div>
           <div className="readout-row"><span>API layer</span><strong>Node + Express</strong></div>
-          <div className="readout-row"><span>Provider</span><strong className="provider">Mock adapter <i>ready for AI</i></strong></div>
+          <div className="readout-row"><span>Provider</span><strong className="provider">{providerName}<i>{providerStatus === "connected" ? "health check passed" : providerStatus}</i></strong></div>
           <div className="next-feature"><span className="spark">✦</span><div><p className="eyebrow">Next signal</p><p>Swap the mock adapter for streaming AI or Deepgram transcription.</p></div></div>
         </aside>
       </section>

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./store";
 import { chatActions } from "./chatSlice";
@@ -8,6 +8,14 @@ export default function App() {
   const dispatch = useDispatch<AppDispatch>();
   const { messages, status, error, summary, summaryStatus, summaryError } = useSelector((state: RootState) => state.chat);
   const [prompt, setPrompt] = useState("");
+  const messagesRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const messageContainer = messagesRef.current;
+    if (messageContainer) {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+  }, [messages, status]);
 
   const submitPrompt = (event: FormEvent) => {
     event.preventDefault();
@@ -47,7 +55,7 @@ export default function App() {
       <section className="workspace">
         <div className="conversation-panel">
           <div className="panel-heading"><div><p className="eyebrow">Live thread</p><h3>Ask the desk</h3></div><span className={`status-pill ${status}`}>{status}</span></div>
-          <div className="messages" aria-live="polite">
+          <div className="messages" ref={messagesRef} aria-live="polite">
             {messages.map((message) => <article className={`message ${message.role}`} key={message.id}><span className="message-role">{message.role === "user" ? "You" : "Signal Desk"}</span><p>{message.content}</p></article>)}
             {status === "loading" && <article className="message assistant loading-message"><span className="message-role">Signal Desk</span><p>Connecting the dots<span className="loading-dots">...</span></p></article>}
           </div>

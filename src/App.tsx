@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./store";
-import { chatActions } from "./chatSlice";
+import { chatActions, Message } from "./chatSlice";
 import "./styles.scss";
 
 export default function App() {

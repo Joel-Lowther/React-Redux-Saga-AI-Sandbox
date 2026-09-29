@@ -12,6 +12,15 @@ const chatSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
+    loadPersistedState: (state, action: PayloadAction<{ messages: Message[]; summary: string | null }>) => {
+      state.messages = action.payload.messages;
+      state.summary = action.payload.summary;
+      state.status = "idle";
+      state.error = null;
+      state.summaryStatus = "idle";
+      state.summaryError = null;
+    },
+    clearConversation: () => ({ ...initialState }),
     messageSent: (state, action: PayloadAction<string>) => {
       state.messages.push({ id: createMessageId(), role: "user", content: action.payload });
       state.status = "loading";

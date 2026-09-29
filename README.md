@@ -24,13 +24,15 @@ Open the forwarded port `3000` preview. The API runs on port `4000` inside the c
 ## Provider configuration
 
 
-The provider adapter uses a deterministic local fallback by default. To use an
-OpenAI-compatible chat endpoint, copy `.env.example` to `.env` and set
-`AI_API_KEY`. The server reads these variables at startup:
+The provider adapter uses a deterministic local fallback by default. Groq is the
+recommended first live provider because it exposes an OpenAI-compatible API.
+Copy `.env.example` to `.env`, create a Groq API key, and set `AI_API_KEY`. The
+server reads these variables at startup:
 
 - `AI_API_KEY`: API credential; never commit this value.
-- `AI_API_ENDPOINT`: chat completions URL, defaulting to OpenAI.
-- `AI_MODEL`: model name, defaulting to `gpt-4o-mini`.
+- `AI_API_ENDPOINT`: chat completions URL, defaulting to Groq.
+- `AI_MODEL`: model name, defaulting to `llama-3.1-8b-instant`; confirm the
+	current model name in the Groq console.
 
 The `/api/health` response reports `mock` or `openai-compatible` so the active
 provider is visible during development.

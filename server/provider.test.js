@@ -5,7 +5,11 @@ describe("provider adapter", () => {
   it("uses the deterministic fallback without credentials", async () => {
     const provider = createProvider({});
 
-    await expect(provider.reply("Hello")).resolves.toContain("I received");
+    const response = await provider.reply("Hello");
+
+    expect(response).not.toContain("Hello");
+    expect(response).toMatch(/provider|Redux Saga|fallback/);
+    await expect(provider.reply("How does Redux Saga work?")).resolves.toContain("Redux Saga");
     await expect(provider.summarize([{ role: "user", content: "Hello" }])).resolves.toContain("1 messages");
     expect(provider.name).toBe("mock");
   });

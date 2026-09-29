@@ -35,4 +35,26 @@ describe("chat reducer", () => {
 
     expect(state).toMatchObject({ summary: "A greeting thread", summaryStatus: "succeeded" });
   });
+
+  it("clears the active conversation and summary state", () => {
+    const state = reducer(
+      reducer(
+        reducer(
+          reducer(undefined, chatActions.messageSent("Hello")),
+          chatActions.replyReceived("Hi there")
+        ),
+        chatActions.summaryRequested([{ id: "1", role: "user", content: "Hello" }])
+      ),
+      chatActions.clearConversation()
+    );
+
+    expect(state).toMatchObject({
+      messages: [],
+      status: "idle",
+      error: null,
+      summary: null,
+      summaryStatus: "idle",
+      summaryError: null,
+    });
+  });
 });

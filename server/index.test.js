@@ -25,7 +25,8 @@ describe("chat API", () => {
       .send({ prompt: "Hello" });
 
     expect(response.status).toBe(200);
-    expect(response.body.reply).toContain("Hello");
+    expect(response.body.reply).not.toContain("Hello");
+    expect(response.body.reply.length).toBeGreaterThan(20);
   });
 
   it("summarizes a conversation", async () => {

@@ -1,8 +1,32 @@
+import "dotenv/config";
+
 const DEFAULT_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 const DEFAULT_MODEL = "gpt-4o-mini";
 
-const fallbackReply = (prompt) =>
-  `I received “${prompt}”. This response came through Redux Saga and the Node adapter. Configure an AI provider when you are ready.`;
+const fallbackReplies = [
+  "The local demo provider is active. Your request travels from React to Redux, through Saga, and into the Node API.",
+  "This workspace is ready for an AI provider. The deterministic fallback is answering so the full request lifecycle can run without credentials.",
+  "Redux Saga coordinates the asynchronous API call, while the Express adapter keeps provider-specific behavior on the server.",
+];
+
+const fallbackReply = (prompt) => {
+  const normalizedPrompt = prompt.toLowerCase();
+
+  if (normalizedPrompt.includes("saga")) {
+    return "Redux Saga watches for the message action, calls the API, and dispatches either a reply or an error back to Redux.";
+  }
+
+  if (normalizedPrompt.includes("redux")) {
+    return "Redux Toolkit stores the conversation and request status, while Saga handles the asynchronous provider request.";
+  }
+
+  if (normalizedPrompt.includes("ai") || normalizedPrompt.includes("provider")) {
+    return "The app currently uses its deterministic fallback. Add AI_API_KEY to switch the server adapter to an OpenAI-compatible provider.";
+  }
+
+  const promptScore = [...normalizedPrompt].reduce((score, character) => score + character.charCodeAt(0), 0);
+  return fallbackReplies[promptScore % fallbackReplies.length];
+};
 
 const fallbackSummary = (messages) => {
   const topics = messages.map((message) => message.content.trim()).filter(Boolean);

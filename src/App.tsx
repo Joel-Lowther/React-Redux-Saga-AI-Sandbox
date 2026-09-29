@@ -10,7 +10,28 @@ export default function App() {
   const [prompt, setPrompt] = useState("");
   const [providerStatus, setProviderStatus] = useState<"checking" | "connected" | "offline">("checking");
   const [providerName, setProviderName] = useState("checking");
+  const [hasHydrated, setHasHydrated] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const persisted = localStorage.getItem("signal-desk-chat");
+    if (persisted) {
+      try {
+        const parsed = JSON.parse(persisted) as { messages?: Message[]; summary?: string | null };
+        if (Array.isArray(parsed.messages)) {
+          dispatch(chatActions.loadPersistedState({ messages: parsed.messages, summary: typeof parsed.summary === "string" ? parsed.summary : null }));
+        }
+      } catch {
+        localStorage.removeItem("signal-desk-chat");
+      }
+    }
+    setHasHydrated(true);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+    localStorage.setItem("signal-desk-chat", JSON.stringify({ messages, summary }));
+  }, [hasHydrated, messages, summary]);
 
   useEffect(() => {
     let active = true;
@@ -56,6 +77,11 @@ export default function App() {
     dispatch(chatActions.summaryRequested(messages));
   };
 
+  const startNewThread = () => {
+    dispatch(chatActions.clearConversation());
+    localStorage.removeItem("signal-desk-chat");
+  };
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -92,9 +118,14 @@ export default function App() {
             <input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask about the architecture..." aria-label="Message" />
             <button type="submit" disabled={!prompt.trim() || status === "loading"}>Send <span>↗</span></button>
           </form>
-          <button className="summary-button" type="button" onClick={summarizeConversation} disabled={!messages.length || summaryStatus === "loading"}>
-            {summaryStatus === "loading" ? "Summarizing..." : "Summarize thread"}
-          </button>
+          <div className="thread-actions">
+            <button className="summary-button" type="button" onClick={summarizeConversation} disabled={!messages.length || summaryStatus === "loading"}>
+              {summaryStatus === "loading" ? "Summarizing..." : "Summarize thread"}
+            </button>
+            <button className="new-thread-button" type="button" onClick={startNewThread} disabled={!messages.length && !summary}>
+              New thread
+            </button>
+          </div>
         </div>
 
         <aside className="inspector">

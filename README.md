@@ -1,106 +1,136 @@
 # Signal Desk
 
-Signal Desk is a small showcase of a modern React request lifecycle: React dispatches an action, Redux stores the conversation, Redux Saga coordinates the side effect, and a Node/Express API calls a provider adapter.
+Signal Desk is a React + Redux + Redux Saga + Node/Express project built to demonstrate how a real AI chat workflow is orchestrated from the UI to the backend and back again.
 
-The client uses React, TypeScript, and Vite. The server is Express, and the full workflow is designed to run in GitHub Codespaces without local Node.js installation.
+The app is designed to show how a request moves through a modern frontend stack: a user action triggers Redux state updates, Redux Saga handles the side effect, Express validates and forwards the request, and an AI provider adapter returns a response.
 
-## Run it locally
+This is a strong portfolio project because it demonstrates architecture thinking, async orchestration, API integration, and frontend state management in a single, readable app.
 
-With Node.js 22 or newer installed, run:
+## Why this project stands out
+
+- Clear separation of concerns across UI, state, side effects, and server logic
+- Real request lifecycle from `React` to `Redux` to `Saga` to `Express`
+- Provider abstraction with a deterministic fallback for local development
+- Conversation summary flow using a second Saga path
+- Test coverage around reducer and saga behavior
+
+## Stack
+
+- React 19 + TypeScript
+- Redux Toolkit
+- Redux Saga
+- Node.js + Express
+- Vite
+- Vitest + Supertest
+- GitHub Codespaces dev container
+
+## Run locally
+
+With Node.js 22 or newer installed:
 
 ```bash
 npm install
 npm run dev
 ```
 
-The React app runs on `http://localhost:3000` and the API runs on `http://localhost:4000`.
+Then open:
 
-## Run it in GitHub Codespaces
+- Frontend: http://localhost:3000
+- API: http://localhost:4000
 
-You do not need Node.js installed on your machine. Open the GitHub repository, select **Code**, choose **Codespaces**, and create a codespace. The checked-in `.devcontainer/devcontainer.json` installs dependencies, forwards ports `3000` and `4000`, and starts the app automatically.
+## Run in GitHub Codespaces
 
-Open the forwarded port `3000` preview. The API runs on port `4000` inside the codespace, and Vite proxies `/api/chat` to it. You can verify the API from the Ports panel by opening `/api/health` on port `4000`.
+This repository includes a dev container configuration so the app can run in a consistent environment without installing Node locally.
 
-## Provider configuration
+1. Open the repository in GitHub.
+2. Choose **Code** → **Codespaces**.
+3. Create a codespace.
+4. The dev container installs dependencies and starts the app automatically.
 
+The frontend is served on port `3000` and the API runs on port `4000`.
 
-The provider adapter uses a deterministic local fallback by default. Groq is the
-recommended first live provider because it exposes an OpenAI-compatible API.
-Copy `.env.example` to `.env`, create a Groq API key, and set `AI_API_KEY`. The
-server reads these variables at startup:
+## Environment setup
 
-- `AI_API_KEY`: API credential; never commit this value.
-- `AI_API_ENDPOINT`: chat completions URL, defaulting to Groq.
-- `AI_MODEL`: model name, defaulting to `llama-3.1-8b-instant`; confirm the
-	current model name in the Groq console.
+The provider adapter supports an OpenAI-compatible provider and falls back to a deterministic local mock when no key is configured.
 
-The `/api/health` response reports `mock` or `openai-compatible` so the active
-provider is visible during development.
-## Stack
-
-- React 19 and TypeScript for the client UI
-- Redux Toolkit for conversation state
-- Redux Saga for asynchronous request orchestration
-- Node.js and Express for the API
-- Vite for development and production builds
-- Vitest and Supertest for automated tests
-- GitHub Codespaces dev container for a repeatable environment
-
-## Useful commands
+Copy `.env.example` to `.env` and update the values as needed:
 
 ```bash
-npm test       # Run the test suite once
-npm run build  # Type-check and create a production build
-npm run server # Run only the Express API
-npm start      # Run only the Vite client
+AI_API_KEY=
+AI_API_ENDPOINT=https://api.groq.com/openai/v1/chat/completions
+AI_MODEL=llama-3.1-8b-instant
+PORT=4000
 ```
 
-## Continuous integration
+Notes:
 
-GitHub Actions validates every push to `main` and every pull request targeting
-`main`. The workflow installs dependencies with `npm ci`, runs `npm test`, and
-creates a production build with `npm run build`.
+- `AI_API_KEY` is optional for local development.
+- Leave it blank to use the fallback mock provider.
+- `AI_API_ENDPOINT` should point to an OpenAI-compatible chat completions endpoint.
+- `AI_MODEL` should be a valid model name for the selected provider.
+
+## Project structure
+
+```text
+src/
+  App.tsx
+  chatSlice.ts
+  sagas.ts
+  store.ts
+  styles.scss
+server/
+  index.js
+  provider.js
+vite.config.ts
+package.json
+README.md
+```
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-	UI[React UI] -->|messageSent| Store[Redux Toolkit store]
-	Store --> Saga[Redux Saga]
-	Saga -->|POST /api/chat| API[Express API]
-	API --> Provider[Provider adapter]
-	Provider -->|reply| API
-	API --> Saga
-	Saga -->|replyReceived or requestFailed| Store
-	Store --> UI
+  UI[React UI] -->|messageSent| Store[Redux Toolkit store]
+  Store --> Saga[Redux Saga]
+  Saga -->|POST /api/chat| API[Express API]
+  API --> Provider[Provider adapter]
+  Provider -->|reply| API
+  API --> Saga
+  Saga -->|replyReceived / requestFailed| Store
+  Store --> UI
 ```
-
-The main ownership boundaries are:
-
-- `src/App.tsx` renders the conversation and dispatches user actions.
-- `src/chatSlice.ts` owns messages, status, and error state.
-- `src/sagas.ts` owns the API side effect and failure handling.
-- `server/index.js` validates requests and calls the provider adapter.
-- `server/provider.js` selects the configured AI provider or local fallback.
-- `vite.config.ts` proxies `/api` calls to the Express server during development.
 
 ## Request lifecycle
 
-1. The user submits a prompt in React.
-2. React dispatches `messageSent`.
-3. Redux stores the user message and sets `loading`.
-4. Redux Saga calls `POST /api/chat`.
-5. Express validates the prompt and asks the provider adapter for a reply.
-6. Saga dispatches `replyReceived` or `requestFailed`.
-7. React renders the updated conversation state.
+1. The user submits a prompt in the UI.
+2. React dispatches a Redux action.
+3. Redux stores the user message and toggles loading state.
+4. Redux Saga calls the API side effect.
+5. Express validates the request and calls the provider adapter.
+6. The provider returns a reply or an error.
+7. Saga dispatches a success or failure action back into Redux.
+8. The UI re-renders the updated conversation.
+
+## Available commands
+
+```bash
+npm install
+npm run dev
+npm test
+npm run build
+npm run server
+npm start
+```
 
 ## Testing
 
-The test suite covers the state and integration boundaries that matter most:
+The project includes automated test coverage for the reducer and saga flow:
 
-- Reducer transitions for sent messages, successful replies, and failures
-- Saga effects for successful and failed requests
-- API health, validation, and provider responses
+- successful request handling
+- failed request handling
+- message state transitions
+- conversation summary flow
+- API validation and provider behavior
 
 Run the suite with:
 
@@ -108,22 +138,25 @@ Run the suite with:
 npm test
 ```
 
-## Git workflow
+## Future improvements
 
-- **Pull**: get incoming changes from GitHub through Source Control.
-- **Stage**: select the files that belong in the checkpoint.
-- **Commit**: save a local checkpoint with a descriptive message.
-- **Push**: use **Sync Changes** to send commits to GitHub.
-- **Branch**: isolate a feature before opening a pull request.
-- **Pull request**: propose merging reviewed work into `main`.
+Some logical next steps for this project include:
 
-This project uses small commits so the portfolio history shows the build,
-testing, documentation, and future AI feature work separately.
+- real provider integration with Groq or OpenAI
+- streaming responses for a more chat-like experience
+- persisted multi-thread conversations
+- deployed frontend and API hosting for a portfolio demo
+- richer UI polish and system status views
 
-## AI feature: conversation summaries
+## Portfolio summary
 
-The application includes a **Summarize thread** action. It sends the current
-conversation to `POST /api/chat/summary`, which uses the configured
-OpenAI-compatible provider when credentials are present and a deterministic
-fallback for local development. The feature demonstrates a separate Saga flow,
-loading and error states, and API validation without requiring credentials.
+Signal Desk demonstrates practical skills that employers look for in frontend and full-stack work:
+
+- React state architecture
+- Redux + Saga async flow design
+- Node API integration
+- provider abstraction patterns
+- test-driven reasoning
+- clean separation of responsibilities in a small app
+
+This is a solid example of a modern frontend architecture and an approachable AI orchestration demo.
